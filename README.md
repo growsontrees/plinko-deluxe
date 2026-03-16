@@ -2,11 +2,17 @@
   <img src="./static/android-chrome-192x192.png" width="100" height="100" alt="Plinko Deluxe Logo">
   <h1>Plinko Deluxe</h1>
   <p>A free-to-play Plinko web game inspired by The Price Is Right.</p>
+
+  <h3>🎮 <a href="https://free-plinko-web-game.netlify.app/">Play Now - 100% Free!</a></h3>
+
+  <p><em>Built with <a href="https://claude.ai/claude-code">Claude Code</a> — a great example of what you can create when AI and human creativity work together.</em></p>
 </div>
 
 ## About
 
-Plinko Deluxe is a free web-based Plinko game where you drop balls through a pyramid of pins and watch them bounce into payout bins at the bottom. No real money, no sign-up — just drop and play.
+Plinko Deluxe is a **100% free** web-based Plinko game where you drop balls through a pyramid of pins and watch them bounce into payout bins at the bottom. No real money, no sign-up, no ads — just drop and play.
+
+**🎯 [Play the live game here!](https://free-plinko-web-game.netlify.app/)**
 
 ## Features
 
