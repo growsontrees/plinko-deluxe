@@ -9,6 +9,16 @@ node_modules
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vscode
+.claude/
+
+# BMAD framework
+_bmad/
+_bmad-output/
+
+# Local assets
+screenshots/
+image.png
+
 # Local Netlify folder
 .netlify
 
