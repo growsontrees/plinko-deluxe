@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.arkadium.com)",
+      "Bash(cat /c/Coding/plinko-bmad/plinko-game/.github/workflows/*.yml)",
+      "Bash(npm list:*)",
+      "Bash(cd \"C:/Coding/plinko-bmad/plinko-game/_bmad-output/implementation-artifacts\" && node generate-docx.cjs)",
+      "Bash(cd \"C:/Coding/plinko-bmad/plinko-game/_bmad-output/implementation-artifacts\" && npm install --no-save docx 2>&1 | tail -3)",
+      "Bash(cd \"C:/Coding/plinko-bmad/plinko-game/_bmad-output/implementation-artifacts\" && npm install --no-save --legacy-peer-deps docx 2>&1 | tail -5)",
+      "Bash(node generate-tech-spec-docx.js)",
+      "Bash(mv generate-tech-spec-docx.js generate-tech-spec-docx.cjs && node generate-tech-spec-docx.cjs)",
+      "Bash(python C:/Users/Admin/.claude/plugins/cache/anthropic-agent-skills/document-skills/3d5951151859/skills/docx/scripts/office/validate.py \"C:/Coding/plinko-bmad/plinko-game/_bmad-output/implementation-artifacts/tech-spec-free-plinko-web-game-deluxe.docx\")"
+    ]
+  }
+}
