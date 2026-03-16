@@ -29,27 +29,27 @@ export const themeColors = {
 
 /**
  * Gets the background and shadow colors of each bin given the row count.
- * Uses Price Is Right red→gold gradient.
+ * Green at edges (high multipliers) → Gold at center (low multipliers).
  */
 export function getBinColors(rowCount: RowCount) {
   const binCount = rowCount + 1;
   const isBinsEven = binCount % 2 === 0;
-  const redToGoldLength = Math.ceil(binCount / 2);
+  const halfLength = Math.ceil(binCount / 2);
 
-  const redToGoldBg = interpolateRgbColors(
-    { r: 227, g: 24, b: 55 },   // PIR Red
-    { r: 255, g: 215, b: 0 },    // PIR Gold
-    redToGoldLength,
+  const edgeToCenterBg = interpolateRgbColors(
+    { r: 34, g: 197, b: 94 },    // Green (high-value edges)
+    { r: 255, g: 215, b: 0 },    // Gold (low-value center)
+    halfLength,
   ).map(({ r, g, b }) => `rgb(${r}, ${g}, ${b})`);
 
-  const redToGoldShadow = interpolateRgbColors(
-    { r: 166, g: 0, b: 4 },
-    { r: 171, g: 145, b: 0 },
-    redToGoldLength,
+  const edgeToCenterShadow = interpolateRgbColors(
+    { r: 21, g: 128, b: 61 },    // Dark green
+    { r: 171, g: 145, b: 0 },    // Dark gold
+    halfLength,
   ).map(({ r, g, b }) => `rgb(${r}, ${g}, ${b})`);
 
   return {
-    background: [...redToGoldBg, ...redToGoldBg.toReversed().slice(isBinsEven ? 0 : 1)],
-    shadow: [...redToGoldShadow, ...redToGoldShadow.toReversed().slice(isBinsEven ? 0 : 1)],
+    background: [...edgeToCenterBg, ...edgeToCenterBg.toReversed().slice(isBinsEven ? 0 : 1)],
+    shadow: [...edgeToCenterShadow, ...edgeToCenterShadow.toReversed().slice(isBinsEven ? 0 : 1)],
   };
 }

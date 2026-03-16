@@ -358,15 +358,15 @@ class PlinkoEngine {
           }
         }
 
-        // Wall guide: gentle centering force in top 3 rows
+        // Wall guide: gentle nudge toward edges in top 3 rows
         if (hasWallGuide) {
           const rowHeight = (PlinkoEngine.HEIGHT - PlinkoEngine.PADDING_TOP - PlinkoEngine.PADDING_BOTTOM) / (this.rowCount - 1);
           const topRowsY = PlinkoEngine.PADDING_TOP + 3 * rowHeight;
           if (body.position.y < topRowsY) {
             const centerX = PlinkoEngine.WIDTH / 2;
-            const dx = centerX - body.position.x;
+            const direction = body.position.x < centerX ? -1 : 1;
             Matter.Body.applyForce(body, body.position, {
-              x: dx * 0.000001,
+              x: 0.000008 * direction,
               y: 0,
             });
           }

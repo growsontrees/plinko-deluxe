@@ -21,7 +21,7 @@
     const bounceAnimation = node.animate(
       [
         { transform: 'translateY(0)' },
-        { transform: 'translateY(30%)' },
+        { transform: 'translateY(20%)' },
         { transform: 'translateY(0)' },
       ],
       {
@@ -49,9 +49,9 @@
 </script>
 
 <!-- Height clamping in mobile: From 10px at 370px viewport width to 16px at 600px viewport width -->
-<div class="flex h-[clamp(10px,0.352px+2.609vw,16px)] w-full justify-center lg:h-7">
+<div class="flex h-[clamp(10px,0.352px+2.609vw,16px)] w-full justify-center overflow-visible lg:h-7">
   {#if $plinkoEngine}
-    <div class="flex gap-[1%]" style:width={`${($plinkoEngine.binsWidthPercentage ?? 0) * 100}%`}>
+    <div class="flex gap-px" style:width={`${($plinkoEngine.binsWidthPercentage ?? 0) * 100}%`}>
       {#each binPayouts[$rowCount][$riskLevel] as payout, binIndex}
         <!-- Font-size clamping:
               - Mobile (< 1024px): From 6px at 370px viewport width to 8px at 600px viewport width

@@ -124,6 +124,63 @@
     {/each}
   </div>
 
+  <button
+    onclick={handleBetClick}
+    disabled={isDropBallDisabled}
+    class={twMerge(
+      'touch-manipulation rounded-md bg-pir-red py-3 font-semibold text-white transition-colors hover:bg-red-600 active:bg-red-800 disabled:bg-neutral-600 disabled:text-neutral-400',
+      autoBetInterval !== null && 'bg-pir-gold text-gray-900 hover:bg-yellow-400 active:bg-yellow-600',
+    )}
+  >
+    {#if betMode === BetMode.MANUAL}
+      Drop Ball
+    {:else if autoBetInterval === null}
+      Start Autobet
+    {:else}
+      Stop Autobet
+    {/if}
+  </button>
+
+  {#if betMode === BetMode.AUTO}
+    <div>
+      <div class="flex items-center gap-1">
+        <label for="autoBetInput" class="text-sm font-medium text-slate-300">Number of Bets</label>
+        <Popover.Root>
+          <Popover.Trigger class="p-1">
+            <Question class="text-slate-300" weight="bold" />
+          </Popover.Trigger>
+          <Popover.Content
+            class="z-30 max-w-lg rounded-md bg-white p-3 text-sm font-medium text-gray-950 drop-shadow-xl"
+          >
+            <p>Enter '0' for unlimited bets.</p>
+            <Popover.Arrow />
+          </Popover.Content>
+        </Popover.Root>
+      </div>
+      <div class="relative">
+        <input
+          id="autoBetInput"
+          value={autoBetInterval === null ? autoBetInput : autoBetsLeft ?? 0}
+          disabled={autoBetInterval !== null}
+          onfocusout={handleAutoBetInputFocusOut}
+          type="number"
+          min="0"
+          inputmode="numeric"
+          class={twMerge(
+            'w-full rounded-md border-2 border-slate-600 bg-slate-900 py-2 pr-8 pl-3 text-sm text-white transition-colors hover:cursor-pointer hover:not-disabled:border-slate-500 focus:border-pir-gold focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50',
+            isAutoBetInputNegative && 'border-red-500 hover:border-red-400 focus:border-red-400',
+          )}
+        />
+        {#if autoBetInput === 0}
+          <Infinity class="absolute top-3 right-3 size-4 text-slate-400" weight="bold" />
+        {/if}
+      </div>
+      {#if isAutoBetInputNegative}
+        <p class="text-xs leading-5 text-red-400">This must be greater than or equal to 0.</p>
+      {/if}
+    </div>
+  {/if}
+
   <div class="relative">
     <label for="betAmount" class="text-sm font-medium text-slate-300">Bet Amount</label>
     <div class="flex">
@@ -197,63 +254,6 @@
   <div class="border-t border-slate-600 pt-3">
     <PowerUpsSection />
   </div>
-
-  {#if betMode === BetMode.AUTO}
-    <div>
-      <div class="flex items-center gap-1">
-        <label for="autoBetInput" class="text-sm font-medium text-slate-300">Number of Bets</label>
-        <Popover.Root>
-          <Popover.Trigger class="p-1">
-            <Question class="text-slate-300" weight="bold" />
-          </Popover.Trigger>
-          <Popover.Content
-            class="z-30 max-w-lg rounded-md bg-white p-3 text-sm font-medium text-gray-950 drop-shadow-xl"
-          >
-            <p>Enter '0' for unlimited bets.</p>
-            <Popover.Arrow />
-          </Popover.Content>
-        </Popover.Root>
-      </div>
-      <div class="relative">
-        <input
-          id="autoBetInput"
-          value={autoBetInterval === null ? autoBetInput : autoBetsLeft ?? 0}
-          disabled={autoBetInterval !== null}
-          onfocusout={handleAutoBetInputFocusOut}
-          type="number"
-          min="0"
-          inputmode="numeric"
-          class={twMerge(
-            'w-full rounded-md border-2 border-slate-600 bg-slate-900 py-2 pr-8 pl-3 text-sm text-white transition-colors hover:cursor-pointer hover:not-disabled:border-slate-500 focus:border-pir-gold focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50',
-            isAutoBetInputNegative && 'border-red-500 hover:border-red-400 focus:border-red-400',
-          )}
-        />
-        {#if autoBetInput === 0}
-          <Infinity class="absolute top-3 right-3 size-4 text-slate-400" weight="bold" />
-        {/if}
-      </div>
-      {#if isAutoBetInputNegative}
-        <p class="text-xs leading-5 text-red-400">This must be greater than or equal to 0.</p>
-      {/if}
-    </div>
-  {/if}
-
-  <button
-    onclick={handleBetClick}
-    disabled={isDropBallDisabled}
-    class={twMerge(
-      'touch-manipulation rounded-md bg-pir-red py-3 font-semibold text-white transition-colors hover:bg-red-600 active:bg-red-800 disabled:bg-neutral-600 disabled:text-neutral-400',
-      autoBetInterval !== null && 'bg-pir-gold text-gray-900 hover:bg-yellow-400 active:bg-yellow-600',
-    )}
-  >
-    {#if betMode === BetMode.MANUAL}
-      Drop Ball
-    {:else if autoBetInterval === null}
-      Start Autobet
-    {:else}
-      Stop Autobet
-    {/if}
-  </button>
 
   <div class="mt-auto pt-3">
     <div class="flex items-center gap-4 border-t border-slate-600 pt-3">

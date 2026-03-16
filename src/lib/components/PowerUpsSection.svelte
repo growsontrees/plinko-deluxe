@@ -19,7 +19,7 @@
   };
 
   const powerUpDescriptions: Record<PowerUpType, string> = {
-    WALL_GUIDE: 'Gentle centering force in top rows',
+    WALL_GUIDE: 'Gentle nudge toward edges in top rows',
     MULTI_BALL: 'Drop 3 balls for the price of 1',
     MAGNET: 'Pulls balls toward edge bins',
     GOLDEN_PEG: 'Random golden pins give 2× bonus',
@@ -75,7 +75,7 @@
                   ></div>
                 </div>
                 <p class="mt-0.5 text-[10px] text-slate-500">
-                  {progress.current}/{progress.threshold} — {POWER_UP_MILESTONES[state.type].description}
+                  {Math.round(progress.current)}/{progress.threshold} — {POWER_UP_MILESTONES[state.type].description}
                 </p>
               </div>
             {:else}

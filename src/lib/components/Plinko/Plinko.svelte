@@ -16,6 +16,9 @@
     renderer
       .init(node)
       .then(() => {
+        // Clear PixiJS inline styles so CSS classes (w-full h-full) control sizing
+        node.style.width = '';
+        node.style.height = '';
         $plinkoEngine = new PlinkoEngine(renderer!);
         $plinkoEngine.start();
       })
