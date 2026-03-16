@@ -94,10 +94,6 @@ pnpm lint
 pnpm format
 ```
 
-## Deployment
-
-This project deploys to [Netlify](https://www.netlify.com/) with static site generation and serverless functions (leaderboard via Netlify Blobs).
-
 ## License
 
 This project is open source. See the repository for details.
