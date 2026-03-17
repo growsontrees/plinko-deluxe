@@ -8,6 +8,10 @@
 
 <svelte:head>
   <title>Plinko</title>
+
+  <!-- Google Search Console Verification -->
+  <meta name="google-site-verification" content="PXRNeMbi-a0P7FSZsTTdb-7EPSg3iLkRZU8z_iXA13s" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
   <link
@@ -15,9 +19,10 @@
     rel="stylesheet"
   />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Plinko" />
-  <meta property="og:url" content="https://plinko-web-game.netlify.app/" />
+  <meta property="og:title" content="Plinko Deluxe - Free Plinko Game" />
+  <meta property="og:url" content="https://free-plinko-web-game.netlify.app/" />
   <meta property="og:image" content={ogImage} />
+  <meta property="og:description" content="Free-to-play Plinko game inspired by The Price Is Right. Drop balls, win big! No sign-up required." />
 </svelte:head>
 
 {@render children?.()}
