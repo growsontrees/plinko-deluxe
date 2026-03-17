@@ -42,6 +42,7 @@ class PlinkoEngine {
   private sensor: Matter.Body;
 
   private pinsLastRowXCoords: number[] = [];
+  private pinsFirstRowXRange: [number, number] = [0, 0];
   private pinPositions: { x: number; y: number }[] = [];
 
   /** Event listeners */
@@ -54,6 +55,11 @@ class PlinkoEngine {
   private goldenPinIndices: Set<number> = new Set();
   /** Balls that have hit a golden pin */
   private goldenBalls: Set<number> = new Set();
+  /** Tracks when each ball first became stuck (ball.id → timestamp) */
+  private stuckBallTimestamps: Map<number, number> = new Map();
+
+  private static STUCK_SPEED_THRESHOLD = 0.15;
+  private static STUCK_TIME_MS = 2000;
 
   static WIDTH = 760;
   static HEIGHT = 570;
@@ -204,7 +210,8 @@ class PlinkoEngine {
       return;
     }
 
-    const ballOffsetRangeX = this.pinDistanceX * 0.8;
+    const firstRowHalfSpan = (this.pinsFirstRowXRange[1] - this.pinsFirstRowXRange[0]) / 2;
+    const ballOffsetRangeX = firstRowHalfSpan * 0.4;
     const ballRadius = this.pinRadius * 2;
     const { friction, frictionAirByRowCount } = PlinkoEngine.ballFrictions;
 
@@ -213,11 +220,18 @@ class PlinkoEngine {
 
     for (let i = 0; i < ballCount; i++) {
       const xOffset = isMultiBall ? (i - 1) * ballRadius * 1.5 : 0;
+      const dropX = Math.max(
+        this.pinsFirstRowXRange[0] + ballRadius,
+        Math.min(
+          this.pinsFirstRowXRange[1] - ballRadius,
+          getRandomBetween(
+            PlinkoEngine.WIDTH / 2 - ballOffsetRangeX,
+            PlinkoEngine.WIDTH / 2 + ballOffsetRangeX,
+          ) + xOffset,
+        ),
+      );
       const ball = Matter.Bodies.circle(
-        getRandomBetween(
-          PlinkoEngine.WIDTH / 2 - ballOffsetRangeX,
-          PlinkoEngine.WIDTH / 2 + ballOffsetRangeX,
-        ) + xOffset,
+        dropX,
         0,
         ballRadius,
         {
@@ -327,6 +341,7 @@ class PlinkoEngine {
       }
     }
 
+    this.stuckBallTimestamps.delete(ball.id);
     this.renderer.removeBall(ball.id);
     Matter.Composite.remove(this.engine.world, ball);
     betAmountOfExistingBalls.update((value) => {
@@ -372,6 +387,33 @@ class PlinkoEngine {
           }
         }
 
+        // Invisible boundary: steer balls back inside the pyramid
+        const progress = Math.max(0, Math.min(1,
+          (body.position.y - PlinkoEngine.PADDING_TOP) /
+          (PlinkoEngine.HEIGHT - PlinkoEngine.PADDING_TOP - PlinkoEngine.PADDING_BOTTOM)
+        ));
+        const leftBound = this.pinsFirstRowXRange[0] + (this.pinsLastRowXCoords[0] - this.pinsFirstRowXRange[0]) * progress;
+        const rightBound = this.pinsFirstRowXRange[1] + (this.pinsLastRowXCoords[this.pinsLastRowXCoords.length - 1] - this.pinsFirstRowXRange[1]) * progress;
+        const margin = this.pinDistanceX * 0.3;
+
+        if (body.position.x < leftBound - margin) {
+          Matter.Body.applyForce(body, body.position, { x: 0.00005, y: 0 });
+        } else if (body.position.x > rightBound + margin) {
+          Matter.Body.applyForce(body, body.position, { x: -0.00005, y: 0 });
+        }
+
+        // Stuck ball detection: if a ball barely moves for 2s, re-drop it
+        if (body.speed < PlinkoEngine.STUCK_SPEED_THRESHOLD) {
+          if (!this.stuckBallTimestamps.has(body.id)) {
+            this.stuckBallTimestamps.set(body.id, Date.now());
+          } else if (Date.now() - this.stuckBallTimestamps.get(body.id)! > PlinkoEngine.STUCK_TIME_MS) {
+            this.resetStuckBall(body);
+            return;
+          }
+        } else {
+          this.stuckBallTimestamps.delete(body.id);
+        }
+
         this.renderer.updateBall(body.id, body.position.x, body.position.y);
       }
     });
@@ -413,6 +455,12 @@ class PlinkoEngine {
         this.pins.push(pin);
         this.pinPositions.push({ x: colX, y: rowY });
 
+        if (row === 0 && col === 0) {
+          this.pinsFirstRowXRange[0] = colX;
+        }
+        if (row === 0 && col === 2) {
+          this.pinsFirstRowXRange[1] = colX;
+        }
         if (row === this.rowCount - 1) {
           this.pinsLastRowXCoords.push(colX);
         }
@@ -478,6 +526,58 @@ class PlinkoEngine {
     }
   }
 
+  private resetStuckBall(ball: Matter.Body) {
+    const firstRowHalfSpan = (this.pinsFirstRowXRange[1] - this.pinsFirstRowXRange[0]) / 2;
+    const ballOffsetRangeX = firstRowHalfSpan * 0.4;
+    const ballRadius = this.pinRadius * 2;
+
+    // Remove the stuck ball
+    this.stuckBallTimestamps.delete(ball.id);
+    this.goldenBalls.delete(ball.id);
+    this.renderer.removeBall(ball.id);
+
+    // Preserve its bet amount for the new ball
+    const betAmt = get(betAmountOfExistingBalls)[ball.id] ?? 0;
+    betAmountOfExistingBalls.update((value) => {
+      const newValue = { ...value };
+      delete newValue[ball.id];
+      return newValue;
+    });
+
+    Matter.Composite.remove(this.engine.world, ball);
+
+    // Re-drop a new ball with the same bet amount
+    const { friction, frictionAirByRowCount } = PlinkoEngine.ballFrictions;
+    const newBall = Matter.Bodies.circle(
+      Math.max(
+        this.pinsFirstRowXRange[0] + ballRadius,
+        Math.min(
+          this.pinsFirstRowXRange[1] - ballRadius,
+          getRandomBetween(
+            PlinkoEngine.WIDTH / 2 - ballOffsetRangeX,
+            PlinkoEngine.WIDTH / 2 + ballOffsetRangeX,
+          ),
+        ),
+      ),
+      0,
+      ballRadius,
+      {
+        restitution: 0.8,
+        friction,
+        frictionAir: frictionAirByRowCount[this.rowCount],
+        collisionFilter: {
+          category: PlinkoEngine.BALL_CATEGORY,
+          mask: PlinkoEngine.PIN_CATEGORY,
+        },
+        render: { fillStyle: '#ff0000' },
+      },
+    );
+
+    Matter.Composite.add(this.engine.world, newBall);
+    betAmountOfExistingBalls.update((value) => ({ ...value, [newBall.id]: betAmt }));
+    this.renderer.drawBall(newBall.id, newBall.position.x, newBall.position.y, ballRadius);
+  }
+
   private removeAllBalls() {
     Matter.Composite.allBodies(this.engine.world).forEach((body) => {
       if (body.collisionFilter.category === PlinkoEngine.BALL_CATEGORY) {
@@ -487,6 +587,7 @@ class PlinkoEngine {
     });
     betAmountOfExistingBalls.set({});
     this.goldenBalls.clear();
+    this.stuckBallTimestamps.clear();
   }
 }
 

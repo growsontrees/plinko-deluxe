@@ -12,11 +12,20 @@
   import { celebrationEvent, plinkoEngine, winRecords } from '$lib/stores/game';
   import { milestoneProgress, newlyUnlockedPowerUp, powerUpStates } from '$lib/stores/powerups';
   import { isMusicOn, isSfxOn } from '$lib/stores/settings';
+  import { isLeaderboardOpen, isLiveStatsOpen } from '$lib/stores/layout';
   import { setBalanceFromLocalStorage, writeBalanceToLocalStorage } from '$lib/utils/game';
   import GitHubLogo from 'phosphor-svelte/lib/GithubLogo';
   import { binPayouts } from '$lib/constants/game';
+  import { onMount } from 'svelte';
 
   let audioManager: AudioManager | null = null;
+
+  onMount(() => {
+    if (window.innerWidth >= 1024) {
+      $isLeaderboardOpen = true;
+      $isLiveStatsOpen = true;
+    }
+  });
 
   $effect(() => {
     setBalanceFromLocalStorage();
